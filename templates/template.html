@@ -450,26 +450,26 @@
           <span>Credit Risk Assessment</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <span class="navbar-toggler-icon"></span>
+      </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
+          <li class="nav-item">
               <a class="nav-link" href="#home">Home</a>
-            </li>
-            <li class="nav-item">
+          </li>
+          <li class="nav-item">
               <a class="nav-link" href="#about">About</a>
-            </li>
-            <li class="nav-item">
+          </li>
+          <li class="nav-item">
               <a class="nav-link" href="#features">Features</a>
-            </li>
-            <li class="nav-item">
+          </li>
+          <li class="nav-item">
               <a class="nav-link" href="#assessment">Assessment</a>
-            </li>
-            <li class="nav-item">
+          </li>
+          <li class="nav-item">
               <a class="nav-link" href="/visuals">Analytics</a>
-            </li>
-          </ul>
+          </li>
+        </ul>
         </div>
       </div>  
     </nav>
@@ -601,7 +601,7 @@
                 <h3 class="form-title">Applicant Information</h3>
                 <p class="form-subtitle">Please provide accurate information for the best assessment results</p>
               </div>
-              
+
               <div class="form-content">
                 <form method="POST" id="assessmentForm">
                   <div class="row">
@@ -620,41 +620,41 @@
                       </div>
                     </div>
                   </div>
-
+                  
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label" for="debtratio">Debt Ratio (%)</label>
                         <input type="number" class="form-control" id="debtratio" name="debtratio" required min="0" max="100" step="0.01">
                         <div class="invalid-feedback">Please enter a valid debt ratio between 0 and 100.</div>
-                      </div>
-                    </div>
+                  </div>
+                </div>
                     <div class="col-md-6">
-                      <div class="form-group">
+                    <div class="form-group">
                         <label class="form-label" for="monthlyincome">Monthly Income (₦)</label>
                         <input type="number" class="form-control" id="monthlyincome" name="monthlyincome" required min="0">
                         <div class="invalid-feedback">Please enter a valid monthly income.</div>
                       </div>
                     </div>
-                  </div>
+                    </div>
 
                   <div class="row">
                     <div class="col-md-6">
-                      <div class="form-group">
+                    <div class="form-group">
                         <label class="form-label" for="ruoul">Credit Utilization (%)</label>
                         <input type="number" class="form-control" id="ruoul" name="ruoul" required min="0" max="100" step="0.01">
                         <div class="invalid-feedback">Please enter a valid credit utilization between 0 and 100.</div>
                       </div>
                     </div>
                     <div class="col-md-6">
-                      <div class="form-group">
+                    <div class="form-group">
                         <label class="form-label" for="30-59 days">30-59 Days Past Due</label>
                         <input type="number" class="form-control" id="30-59 days" name="30-59 days" required min="0" max="10">
                         <div class="invalid-feedback">Please enter a valid number.</div>
                       </div>
                     </div>
                   </div>
-
+                  
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -671,7 +671,7 @@
                       </div>
                     </div>
                   </div>
-
+                  
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -688,14 +688,14 @@
                       </div>
                     </div>
                   </div>
-
+                  
                   <button type="submit" class="btn btn-submit" id="submitBtn">
                     <span id="submitText">Get Assessment</span>
                     <span id="submitSpinner" class="loading-spinner ms-2" style="display: none;"></span>
-                  </button>
-                </form>
+                    </button>
+              </form>
 
-                {% if prediction_result %}
+              {% if prediction_result %}
                 <div class="prediction-result {% if 'approved' in prediction_result.lower() %}result-success{% elif 'review' in prediction_result.lower() %}result-warning{% else %}result-danger{% endif %}">
                   <div class="result-icon">
                     {% if 'approved' in prediction_result.lower() %}
@@ -704,14 +704,14 @@
                       <i class="fas fa-exclamation-triangle"></i>
                     {% else %}
                       <i class="fas fa-times-circle"></i>
-                    {% endif %}
-                  </div>
+                  {% endif %}
+                        </div>
                   <div class="result-title">{{ prediction_result }}</div>
                   <div class="result-details">{{ prediction_details }}</div>
+                  </div>
+                  {% endif %}
                 </div>
-                {% endif %}
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -732,7 +732,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script>
+      <script>
       // Form validation and submission
       document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('assessmentForm');
@@ -742,17 +742,17 @@
 
         // Form validation
         form.addEventListener('submit', function(e) {
-          let isValid = true;
+        let isValid = true;
           const inputs = form.querySelectorAll('input[required]');
-          
-          inputs.forEach(input => {
+        
+        inputs.forEach(input => {
             if (!input.checkValidity()) {
-              input.classList.add('is-invalid');
-              isValid = false;
-            } else {
+            input.classList.add('is-invalid');
+            isValid = false;
+          } else {
               input.classList.remove('is-invalid');
-              input.classList.add('is-valid');
-            }
+                input.classList.add('is-valid');
+              }
           });
 
           if (isValid) {
@@ -760,34 +760,34 @@
             submitText.textContent = 'Processing...';
             submitSpinner.style.display = 'inline-block';
             submitBtn.disabled = true;
-          } else {
+              } else {
             e.preventDefault();
           }
         });
-
+        
         // Real-time validation
         form.querySelectorAll('input').forEach(input => {
           input.addEventListener('input', function() {
             if (this.checkValidity()) {
               this.classList.remove('is-invalid');
-              this.classList.add('is-valid');
-            } else {
+                this.classList.add('is-valid');
+              } else {
               this.classList.remove('is-valid');
-              this.classList.add('is-invalid');
-            }
-          });
+                this.classList.add('is-invalid');
+              }
         });
+      });
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-              target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-              });
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
             }
           });
         });
@@ -801,7 +801,7 @@
           } else {
             navbar.style.background = 'rgba(255, 255, 255, 0.95)';
             navbar.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-          }
+        }
         });
       });
     </script>
