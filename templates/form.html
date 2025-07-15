@@ -1,0 +1,57 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="assessment-form mx-auto" style="max-width: 600px;">
+    <div class="form-header">
+      <h2 class="form-title">Loan Assessment Form</h2>
+      <p>Fill in your details to assess your loan eligibility and risk profile.</p>
+    </div>
+    {% if error %}
+      <div class="alert alert-danger mt-3">{{ error }}</div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('assessment') }}" class="p-4">
+      <div class="mb-3">
+        <label for="age" class="form-label">Age</label>
+        <input type="number" class="form-control" id="age" name="age" min="18" max="100" required>
+      </div>
+      <div class="mb-3">
+        <label for="Dependents" class="form-label">Number of Dependents</label>
+        <input type="number" class="form-control" id="Dependents" name="Dependents" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="debtratio" class="form-label">Debt Ratio (0-1)</label>
+        <input type="number" step="0.01" class="form-control" id="debtratio" name="debtratio" min="0" max="1" required>
+      </div>
+      <div class="mb-3">
+        <label for="monthlyincome" class="form-label">Monthly Income</label>
+        <input type="number" class="form-control" id="monthlyincome" name="monthlyincome" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="ruoul" class="form-label">Credit Utilization (0-1)</label>
+        <input type="number" step="0.01" class="form-control" id="ruoul" name="ruoul" min="0" max="1" required>
+      </div>
+      <div class="mb-3">
+        <label for="30-59 days" class="form-label">30-59 Days Past Due</label>
+        <input type="number" class="form-control" id="30-59 days" name="30-59 days" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="60-89 days" class="form-label">60-89 Days Past Due</label>
+        <input type="number" class="form-control" id="60-89 days" name="60-89 days" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="90days" class="form-label">90+ Days Past Due</label>
+        <input type="number" class="form-control" id="90days" name="90days" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="NumberOfOpenCreditLinesAndLoans" class="form-label">Number of Open Credit Lines and Loans</label>
+        <input type="number" class="form-control" id="NumberOfOpenCreditLinesAndLoans" name="NumberOfOpenCreditLinesAndLoans" min="0" required>
+      </div>
+      <div class="mb-3">
+        <label for="NumberRealEstateLoansOrLines" class="form-label">Number of Real Estate Loans or Lines</label>
+        <input type="number" class="form-control" id="NumberRealEstateLoansOrLines" name="NumberRealEstateLoansOrLines" min="0" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Submit Assessment</button>
+    </form>
+  </div>
+</div>
+{% endblock %} 

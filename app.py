@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_mysqldb import MySQL
 import pickle
 import yaml
@@ -7,6 +7,7 @@ import pandas as pd
 import os
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Needed for session
 
 # Configure db
 try:
@@ -45,58 +46,33 @@ def load_sample_data():
         print(f"⚠️ Could not load sample data: {str(e)}")
         return None
 
-@app.route("/", methods=['GET', 'POST'])
-def home():
-    prediction_result = ''
-    prediction_details = ''
-    
+@app.route("/")
+def welcome():
+    return render_template("welcome.html")
+
+@app.route("/assessment", methods=['GET', 'POST'])
+def assessment():
     if request.method == 'POST':
-        print("🔍 Form submitted! Processing...")
         try:
-            # Get form data
             userDetails = request.form
-            print(f"📋 Received form data: {dict(userDetails)}")
-            
-            # Define which fields should be float vs integer
             float_fields = ['debtratio', 'monthlyincome', 'ruoul']
             int_fields = ['age', 'Dependents', '30-59 days', '60-89 days', '90days', 
                          'NumberOfOpenCreditLinesAndLoans', 'NumberRealEstateLoansOrLines']
-            
-            # Convert form values to appropriate types
             features = {}
             for field in float_fields:
                 if field in userDetails:
-                    try:
-                        features[field] = float(userDetails[field])
-                        print(f"✅ Converted {field}: {features[field]}")
-                    except ValueError:
-                        raise ValueError(f"Invalid value for {field}. Please enter a valid number.")
-            
+                    features[field] = float(userDetails[field])
             for field in int_fields:
                 if field in userDetails:
-                    try:
-                        # First convert to float to handle decimal inputs, then to int
-                        features[field] = int(float(userDetails[field]))
-                        print(f"✅ Converted {field}: {features[field]}")
-                    except ValueError:
-                        raise ValueError(f"Invalid value for {field}. Please enter a valid whole number.")
-            
-            print(f"🎯 Final features: {features}")
-            
-            # Validate specific ranges for Nigerian context
+                    features[field] = int(float(userDetails[field]))
             if features['age'] < 18 or features['age'] > 100:
                 raise ValueError("Age must be between 18 and 100 years.")
-            
             if features['monthlyincome'] < 0:
                 raise ValueError("Monthly income cannot be negative.")
-            
             if features['debtratio'] < 0 or features['debtratio'] > 1:
                 raise ValueError("Debt ratio must be between 0 and 1 (0% to 100%).")
-            
             if features['ruoul'] < 0 or features['ruoul'] > 1:
                 raise ValueError("Credit utilization must be between 0 and 1 (0% to 100%).")
-            
-            # Create feature array for prediction
             feature_array = np.array([[
                 features['age'],
                 features['Dependents'],
@@ -109,26 +85,13 @@ def home():
                 features['NumberOfOpenCreditLinesAndLoans'],
                 features['NumberRealEstateLoansOrLines']
             ]])
-            
-            print(f"🧠 Feature array shape: {feature_array.shape}")
-            print(f"🧠 Feature array: {feature_array}")
-            
-            # Make prediction
             if loaded_model is not None:
-                print("🤖 Making prediction with loaded model...")
                 prediction = loaded_model.predict(feature_array)
-                print(f"🎯 Prediction result: {prediction}")
-                
-                # Get prediction probability if available
                 try:
                     prediction_proba = loaded_model.predict_proba(feature_array)[0]
                     confidence = max(prediction_proba) * 100
-                    print(f"📊 Prediction probability: {prediction_proba}, Confidence: {confidence:.1f}%")
                 except:
-                    confidence = 85  # Default confidence if probability not available
-                    print(f"📊 Using default confidence: {confidence}%")
-                
-                # Store data in database if connected
+                    confidence = 85
                 if DB_CONNECTED:
                     try:
                         cur = mysql.connection.cursor()
@@ -147,35 +110,32 @@ def home():
                         ))
                         mysql.connection.commit()
                         cur.close()
-                        print("✅ Data stored in database successfully")
                     except Exception as db_error:
-                        print(f"⚠️ Database error: {str(db_error)}")
-                        # Continue with prediction even if database storage fails
-                
-                # Set prediction result message
+                        pass
                 if prediction[0] == 1:
-                    prediction_result = '🎉 Congratulations! Your loan application has been approved'
+                    prediction_result = 'Congratulations! Your loan application has been approved'
                     prediction_details = f'Based on our analysis, your application shows a low risk profile with {confidence:.1f}% confidence. Our credit risk assessment system recommends approval.'
                 else:
-                    prediction_result = '⚠️ Application requires further review'
+                    prediction_result = 'Application requires further review'
                     prediction_details = f'Our analysis indicates some risk factors that need attention. Confidence level: {confidence:.1f}%. We recommend reviewing the application with additional documentation.'
-                
-                print(f"📝 Final prediction result: {prediction_result}")
-                print(f"📝 Final prediction details: {prediction_details}")
-                
             else:
                 raise ValueError("Model not available. Please contact system administrator.")
-            
+            session['prediction_result'] = prediction_result
+            session['prediction_details'] = prediction_details
+            return redirect(url_for('result'))
         except ValueError as ve:
-            prediction_result = f'❌ Validation Error: {str(ve)}'
-            prediction_details = 'Please review your input and try again. All fields must contain valid numerical values.'
-            print(f"❌ Validation error: {str(ve)}")
+            return render_template("form.html", error=str(ve))
         except Exception as e:
-            prediction_result = f'❌ System Error: {str(e)}'
-            prediction_details = 'An unexpected error occurred. Please try again or contact support if the problem persists.'
-            print(f"❌ System error: {str(e)}")
-            
-    return render_template("template.html", prediction_result=prediction_result, prediction_details=prediction_details)
+            return render_template("form.html", error="An unexpected error occurred. Please try again or contact support if the problem persists.")
+    return render_template("form.html")
+
+@app.route("/result")
+def result():
+    prediction_result = session.get('prediction_result', None)
+    prediction_details = session.get('prediction_details', None)
+    if not prediction_result:
+        return redirect(url_for('assessment'))
+    return render_template("result.html", prediction_result=prediction_result, prediction_details=prediction_details)
 
 @app.route('/visuals')
 def visuals():

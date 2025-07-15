@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+{% block content %}
+<div class="hero-section text-center">
+  <div class="container hero-content">
+    <h1 class="hero-title">Welcome to the Loan Defaulter Prediction System</h1>
+    <p class="hero-subtitle">Empowering financial institutions to make informed lending decisions.<br>Start your assessment to know your loan eligibility and risk profile.</p>
+    <a href="{{ url_for('assessment') }}" class="btn btn-primary btn-lg mt-4">Start Assessment</a>
+  </div>
+</div>
+<div class="section text-center">
+  <div class="container">
+    <h2 class="section-title">How to Use</h2>
+    <p class="section-subtitle">1. Click <b>Start Assessment</b>.<br>2. Fill in the required financial details.<br>3. Submit the form to get your loan risk result instantly.<br>4. Use the result to guide your next steps.</p>
+  </div>
+</div>
+{% endblock %} 
