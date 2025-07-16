@@ -13,6 +13,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
+# Add SMOTE for oversampling
+from imblearn.over_sampling import SMOTE
+
 
 # --- Configuration ---
 DATA_PATH = 'ModelData/cs-training.csv'
@@ -174,11 +177,19 @@ print(f"X_test shape: {X_test.shape}")
 print(f"y_train shape: {y_train.shape}")
 print(f"y_test shape: {y_test.shape}")
 
+# --- SMOTE Oversampling ---
+print("\nApplying SMOTE to balance the classes in the training set...")
+smote = SMOTE(random_state=42)
+X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+print(f"After SMOTE, X_train shape: {X_train_res.shape}")
+print(f"After SMOTE, y_train shape: {y_train_res.shape}")
+print("Class distribution after SMOTE:")
+print(pd.Series(y_train_res).value_counts())
 
 # --- 5. Train the Model ---
-print("\nTraining RandomForestClassifier with class_weight='balanced' and 50 trees...")
+print("\nTraining RandomForestClassifier with class_weight='balanced' and 50 trees on SMOTE data...")
 model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=42)
-model.fit(X_train, y_train)
+model.fit(X_train_res, y_train_res)
 print("Model training complete.")
 
 
