@@ -5,6 +5,7 @@ import yaml
 import numpy as np
 import pandas as pd
 import os
+import joblib
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Needed for session
@@ -28,7 +29,7 @@ except Exception as e:
 
 # Load the saved model
 try:
-    loaded_model = pickle.load(open('Final_predictive_model/finalized_model.sav', 'rb'))
+    loaded_model = joblib.load('Final_predictive_model/finalized_model.sav')
     print("✅ Machine learning model loaded successfully")
 except Exception as e:
     print(f"❌ Error loading model: {str(e)}")
