@@ -294,7 +294,7 @@
             <h3 class="chart-title">
               <i class="fas fa-chart-pie me-2"></i>Default Rate by Age Group
             </h3>
-            <canvas id="defaultByGenderChart" style="height: 300px;"></canvas>
+            <canvas id="defaultByGenderChart" width="400" height="300" style="max-width:100%; height:300px;"></canvas>
           </div>
         </div>
 
@@ -303,7 +303,7 @@
             <h3 class="chart-title">
               <i class="fas fa-chart-line me-2"></i>Payment Delays Since September
             </h3>
-            <canvas id="septDelaysChart" style="height: 300px;"></canvas>
+            <canvas id="septDelaysChart" width="400" height="300" style="max-width:100%; height:300px;"></canvas>
           </div>
           </div>
         </div>
@@ -314,7 +314,7 @@
             <h3 class="chart-title">
               <i class="fas fa-chart-bar me-2"></i>Age vs Credit Balance
             </h3>
-            <canvas id="ageBalanceChart" style="height: 300px;"></canvas>
+            <canvas id="ageBalanceChart" width="400" height="300" style="max-width:100%; height:300px;"></canvas>
           </div>
         </div>
         
@@ -323,7 +323,7 @@
             <h3 class="chart-title">
               <i class="fas fa-chart-area me-2"></i>Population Age Distribution
             </h3>
-            <canvas id="populationChart" style="height: 300px;"></canvas>
+            <canvas id="populationChart" width="400" height="300" style="max-width:100%; height:300px;"></canvas>
           </div>
           </div>
         </div>
@@ -334,7 +334,7 @@
             <h3 class="chart-title">
               <i class="fas fa-chart-line me-2"></i>Bill vs Payment Analysis
             </h3>
-            <canvas id="billPaymentChart" style="height: 400px;"></canvas>
+            <canvas id="billPaymentChart" width="600" height="400" style="max-width:100%; height:400px;"></canvas>
           </div>
         </div>
       </div>
@@ -398,7 +398,7 @@
               },
               options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                   legend: {
                     position: 'bottom'
@@ -427,7 +427,7 @@
               },
               options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                   legend: {
                     display: false
@@ -461,7 +461,7 @@
               },
               options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                   legend: {
                     display: false
@@ -495,7 +495,7 @@
               },
               options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                   legend: {
                     display: false
@@ -552,7 +552,7 @@
               },
               options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                   legend: {
                     position: 'top'
