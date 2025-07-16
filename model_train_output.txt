@@ -1,0 +1,101 @@
+Loading data from: ModelData/cs-training.csv
+Data loaded successfully.
+Initial data shape: (150000, 12)
+
+Initial Data Head:
+   Unnamed: 0  ...  NumberOfDependents
+0           1  ...                 2.0
+1           2  ...                 1.0
+2           3  ...                 0.0
+3           4  ...                 0.0
+4           5  ...                 0.0
+
+[5 rows x 12 columns]
+
+Initial Columns:
+['Unnamed: 0', 'SeriousDlqin2yrs', 'RevolvingUtilizationOfUnsecuredLines', 'age', 'NumberOfTime30-59DaysPastDueNotWorse', 'DebtRatio', 'MonthlyIncome', 'NumberOfOpenCreditLinesAndLoans', 'NumberOfTimes90DaysLate', 'NumberRealEstateLoansOrLines', 'NumberOfTime60-89DaysPastDueNotWorse', 'NumberOfDependents']
+
+Dropping 'Unnamed: 0' column...
+Dropped 'Unnamed: 0'.
+Cleaning column names...
+Column names cleaned.
+
+Cleaned Columns:
+['seriousdlqin2yrs', 'revolvingutilizationofunsecuredlines', 'age', 'numberoftime3059dayspastduenotworse', 'debtratio', 'monthlyincome', 'numberofopencreditlinesandloans', 'numberoftimes90dayslate', 'numberrealestateloansorlines', 'numberoftime6089dayspastduenotworse', 'numberofdependents']
+
+Checking for missing values (before imputation):
+seriousdlqin2yrs                            0
+revolvingutilizationofunsecuredlines        0
+age                                         0
+numberoftime3059dayspastduenotworse         0
+debtratio                                   0
+monthlyincome                           29731
+numberofopencreditlinesandloans             0
+numberoftimes90dayslate                     0
+numberrealestateloansorlines                0
+numberoftime6089dayspastduenotworse         0
+numberofdependents                       3924
+dtype: int64
+Imputed 'monthlyincome' missing values with median: 5400.0
+Imputed 'numberofdependents' missing values with mode: 0.0
+
+Missing values after imputation:
+seriousdlqin2yrs                        0
+revolvingutilizationofunsecuredlines    0
+age                                     0
+numberoftime3059dayspastduenotworse     0
+debtratio                               0
+monthlyincome                           0
+numberofopencreditlinesandloans         0
+numberoftimes90dayslate                 0
+numberrealestateloansorlines            0
+numberoftime6089dayspastduenotworse     0
+numberofdependents                      0
+dtype: int64
+Removed 1 rows where 'age' was 0.
+Capped 'revolvingutilizationofunsecuredlines' at 1.0. Initial max was: 50708.0
+Capped 'numberoftime3059dayspastduenotworse' at 4.00. Initial max was: 98
+Capped 'numberoftimes90dayslate' at 3.00. Initial max was: 98
+Capped 'numberoftime6089dayspastduenotworse' at 2.00. Initial max was: 98
+
+Data preprocessing complete.
+Final data shape after preprocessing: (149999, 11)
+
+Features (X) shape: (149999, 10)
+Target (y) shape: (149999,)
+
+Class distribution in target variable:
+seriousdlqin2yrs
+0    139973
+1     10026
+Name: count, dtype: int64
+X_train shape: (119999, 10)
+X_test shape: (30000, 10)
+y_train shape: (119999,)
+y_test shape: (30000,)
+
+Training RandomForestClassifier with class_weight='balanced' and 50 trees...
+Model training complete.
+
+Evaluating the model on the test set...
+Accuracy: 0.9339
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.94      0.99      0.97     27995
+           1       0.52      0.15      0.23      2005
+
+    accuracy                           0.93     30000
+   macro avg       0.73      0.57      0.60     30000
+weighted avg       0.91      0.93      0.92     30000
+
+
+Confusion Matrix:
+[[27719   276]
+ [ 1707   298]]
+
+Saving model to: Final_predictive_model/finalized_model.sav (with compression)
+Model saved successfully!
+
+Script finished.

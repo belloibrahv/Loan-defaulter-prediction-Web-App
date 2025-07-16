@@ -56,7 +56,6 @@ def assessment():
     if request.method == 'POST':
         try:
             userDetails = request.form
-            # Extract and order features as expected by the model
             feature_names = [
                 'revolvingutilizationofunsecuredlines',
                 'age',
@@ -74,7 +73,6 @@ def assessment():
                 value = userDetails.get(field)
                 if value is None or value == '':
                     raise ValueError(f"Missing value for {field.replace('_', ' ').title()}.")
-                # All are numeric, but some are float, some int
                 if field in ['revolvingutilizationofunsecuredlines', 'debtratio']:
                     value = float(value)
                     if not (0 <= value <= 1):
@@ -90,29 +88,56 @@ def assessment():
                     if value < 0:
                         raise ValueError(f"{field.replace('_', ' ').title()} cannot be negative.")
                 features.append(value)
+            # Debug print: show feature names and values
+            print("[DEBUG] Features for prediction:")
+            for fname, fval in zip(feature_names, features):
+                print(f"    {fname}: {fval}")
             feature_array = np.array([features])
-            print(f"\n[DEBUG] Feature array for prediction: {feature_array}")
+            print(f"[DEBUG] Feature array for prediction: {feature_array}")
             if loaded_model is not None:
                 prediction = loaded_model.predict(feature_array)
                 try:
                     prediction_proba = loaded_model.predict_proba(feature_array)[0]
                     print(f"[DEBUG] Prediction probabilities: {prediction_proba}")
-                    confidence = max(prediction_proba) * 100
+                    approval_proba = float(prediction_proba[1])
                 except Exception as e:
                     print(f"[DEBUG] Could not get prediction probabilities: {e}")
-                    prediction_proba = [0.5, 0.5]
-                    confidence = 85
-                # Threshold-based approval logic
-                approval_threshold = 0.5
-                if prediction_proba[1] >= approval_threshold:
-                    prediction_result = 'Congratulations! Your loan application has been approved'
-                    prediction_details = f'Based on our analysis, your application shows a low risk profile with {prediction_proba[1]*100:.1f}% confidence. Our credit risk assessment system recommends approval.'
-                elif prediction[0] == 1:
-                    prediction_result = 'Congratulations! Your loan application has been approved'
-                    prediction_details = f'Based on our analysis, your application shows a low risk profile with {confidence:.1f}% confidence. Our credit risk assessment system recommends approval.'
+                    approval_proba = 0.5
+                # Risk logic
+                if approval_proba >= 0.7:
+                    risk_level = 'Low'
+                    decision = 'Approved'
+                    summary = 'Congratulations! You are eligible for a loan.'
+                    explanation = 'Your application shows a low risk of default based on our analysis.'
+                    next_steps = 'You may proceed with your loan application. Please follow your financial institution’s instructions.'
+                    color = 'success'
+                    icon = 'fa-check-circle'
+                elif approval_proba >= 0.4:
+                    risk_level = 'Medium'
+                    decision = 'Needs Review'
+                    summary = 'Your application requires further review.'
+                    explanation = 'Your application shows some risk factors. We recommend a closer review.'
+                    next_steps = 'Please double-check your information. Additional documentation may be requested.'
+                    color = 'warning'
+                    icon = 'fa-exclamation-triangle'
                 else:
-                    prediction_result = 'Application requires further review'
-                    prediction_details = f'Your application needs a closer look. Confidence level: {confidence:.1f}%. We may ask you for more information to help us make a decision.'
+                    risk_level = 'High'
+                    decision = 'Not Eligible'
+                    summary = 'We are unable to approve your loan at this time.'
+                    explanation = 'Your application shows a high risk of default based on our analysis.'
+                    next_steps = 'Consider improving your credit profile or contacting your financial institution for advice.'
+                    color = 'danger'
+                    icon = 'fa-times-circle'
+                result_summary = {
+                    'decision': decision,
+                    'probability': f"{approval_proba*100:.1f}%",
+                    'risk_level': risk_level,
+                    'summary': summary,
+                    'explanation': explanation,
+                    'next_steps': next_steps,
+                    'color': color,
+                    'icon': icon
+                }
                 if DB_CONNECTED:
                     try:
                         cur = mysql.connection.cursor()
@@ -128,8 +153,7 @@ def assessment():
             else:
                 print("[DEBUG] Model not available.")
                 raise ValueError("Model not available. Please contact system administrator.")
-            session['prediction_result'] = prediction_result
-            session['prediction_details'] = prediction_details
+            session['result_summary'] = result_summary
             return redirect(url_for('result'))
         except ValueError as ve:
             print(f"[DEBUG] ValueError: {ve}")
@@ -141,11 +165,10 @@ def assessment():
 
 @app.route("/result")
 def result():
-    prediction_result = session.get('prediction_result', None)
-    prediction_details = session.get('prediction_details', None)
-    if not prediction_result:
+    result_summary = session.get('result_summary', None)
+    if not result_summary:
         return redirect(url_for('assessment'))
-    return render_template("result.html", prediction_result=prediction_result, prediction_details=prediction_details)
+    return render_template("result.html", result_summary=result_summary)
 
 @app.route('/visuals')
 def visuals():

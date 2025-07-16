@@ -2,7 +2,7 @@
 set -e
 
 echo "Downloading model file..."
-wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1y60p2JTTS2HGW98JrTo5Zi3MagUFXoEU' -O Final_predictive_model/finalized_model.sav
+wget --no-check-certificate 'https://drive.google.com/file/d/1iyZM-ssUPO-ja-n_iNIyuBEOPIFVgk3q/view?usp=sharing'
 
 # Optional: Check if the file is HTML (which means the download failed)
 if file Final_predictive_model/finalized_model.sav | grep -q 'HTML'; then
