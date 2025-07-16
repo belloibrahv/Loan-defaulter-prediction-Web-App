@@ -1,5 +1,13 @@
 #!/bin/bash
 set -e
-mkdir -p Final_predictive_model
-curl -L -o Final_predictive_model/finalized_model.sav "https://drive.google.com/file/d/1y60p2JTTS2HGW98JrTo5Zi3MagUFXoEU/view?usp=sharing"
+
+echo "Downloading model file..."
+wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1y60p2JTTS2HGW98JrTo5Zi3MagUFXoEU' -O Final_predictive_model/finalized_model.sav
+
+# Optional: Check if the file is HTML (which means the download failed)
+if file Final_predictive_model/finalized_model.sav | grep -q 'HTML'; then
+  echo "Downloaded file is HTML, not a model! Check your Google Drive link or permissions."
+  exit 1
+fi
+
 echo "Model downloaded successfully." 
