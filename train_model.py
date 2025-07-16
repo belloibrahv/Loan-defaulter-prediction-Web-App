@@ -10,9 +10,8 @@ import pickle
 import os
 
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import AdaBoostClassifier # Assumed based on previous error 'weight_boosting'
-from sklearn.tree import DecisionTreeClassifier # Base estimator for AdaBoost
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 
 # --- Configuration ---
@@ -161,6 +160,9 @@ y = data[TARGET_COLUMN]
 print(f"\nFeatures (X) shape: {X.shape}")
 print(f"Target (y) shape: {y.shape}")
 
+# Print class distribution
+print("\nClass distribution in target variable:")
+print(y.value_counts())
 
 # --- 4. Split Data into Training and Testing Sets ---
 # Using a fixed random_state for reproducibility
@@ -174,16 +176,8 @@ print(f"y_test shape: {y_test.shape}")
 
 
 # --- 5. Train the Model ---
-print("\nTraining the model...")
-
-# AdaBoostClassifier with a DecisionTreeClassifier stump as base estimator
-# This is a common setup for AdaBoost.
-model = AdaBoostClassifier(
-    estimator=DecisionTreeClassifier(max_depth=1), # Base estimator is a shallow decision tree (stump)
-    n_estimators=100, # Number of boosting stages
-    random_state=42 # For reproducibility
-)
-
+print("\nTraining RandomForestClassifier with class_weight='balanced'...")
+model = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
 model.fit(X_train, y_train)
 print("Model training complete.")
 
@@ -197,6 +191,10 @@ print(f"Accuracy: {accuracy:.4f}")
 
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
+
+# Print confusion matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
 
 
 # --- 7. Save the Trained Model ---

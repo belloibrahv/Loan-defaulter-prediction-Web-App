@@ -55,77 +55,86 @@ def assessment():
     if request.method == 'POST':
         try:
             userDetails = request.form
-            float_fields = ['debtratio', 'monthlyincome', 'ruoul']
-            int_fields = ['age', 'Dependents', '30-59 days', '60-89 days', '90days', 
-                         'NumberOfOpenCreditLinesAndLoans', 'NumberRealEstateLoansOrLines']
-            features = {}
-            for field in float_fields:
-                if field in userDetails:
-                    features[field] = float(userDetails[field])
-            for field in int_fields:
-                if field in userDetails:
-                    features[field] = int(float(userDetails[field]))
-            if features['age'] < 18 or features['age'] > 100:
-                raise ValueError("Age must be between 18 and 100 years.")
-            if features['monthlyincome'] < 0:
-                raise ValueError("Monthly income cannot be negative.")
-            if features['debtratio'] < 0 or features['debtratio'] > 1:
-                raise ValueError("Debt ratio must be between 0 and 1 (0% to 100%).")
-            if features['ruoul'] < 0 or features['ruoul'] > 1:
-                raise ValueError("Credit utilization must be between 0 and 1 (0% to 100%).")
-            feature_array = np.array([[
-                features['age'],
-                features['Dependents'],
-                features['debtratio'],
-                features['monthlyincome'],
-                features['ruoul'],
-                features['30-59 days'],
-                features['60-89 days'],
-                features['90days'],
-                features['NumberOfOpenCreditLinesAndLoans'],
-                features['NumberRealEstateLoansOrLines']
-            ]])
+            # Extract and order features as expected by the model
+            feature_names = [
+                'revolvingutilizationofunsecuredlines',
+                'age',
+                'numberoftime3059dayspastduenotworse',
+                'debtratio',
+                'monthlyincome',
+                'numberofopencreditlinesandloans',
+                'numberoftimes90dayslate',
+                'numberrealestateloansorlines',
+                'numberoftime6089dayspastduenotworse',
+                'numberofdependents'
+            ]
+            features = []
+            for field in feature_names:
+                value = userDetails.get(field)
+                if value is None or value == '':
+                    raise ValueError(f"Missing value for {field.replace('_', ' ').title()}.")
+                # All are numeric, but some are float, some int
+                if field in ['revolvingutilizationofunsecuredlines', 'debtratio']:
+                    value = float(value)
+                    if not (0 <= value <= 1):
+                        raise ValueError(f"{field.replace('_', ' ').title()} must be between 0 and 1.")
+                elif field in ['monthlyincome']:
+                    value = float(value)
+                    if value < 0:
+                        raise ValueError("Monthly income cannot be negative.")
+                else:
+                    value = int(float(value))
+                    if field == 'age' and not (18 <= value <= 100):
+                        raise ValueError("Age must be between 18 and 100 years.")
+                    if value < 0:
+                        raise ValueError(f"{field.replace('_', ' ').title()} cannot be negative.")
+                features.append(value)
+            feature_array = np.array([features])
+            print(f"\n[DEBUG] Feature array for prediction: {feature_array}")
             if loaded_model is not None:
                 prediction = loaded_model.predict(feature_array)
                 try:
                     prediction_proba = loaded_model.predict_proba(feature_array)[0]
+                    print(f"[DEBUG] Prediction probabilities: {prediction_proba}")
                     confidence = max(prediction_proba) * 100
-                except:
+                except Exception as e:
+                    print(f"[DEBUG] Could not get prediction probabilities: {e}")
+                    prediction_proba = [0.5, 0.5]
                     confidence = 85
+                # Threshold-based approval logic
+                approval_threshold = 0.5
+                if prediction_proba[1] >= approval_threshold:
+                    prediction_result = 'Congratulations! Your loan application has been approved'
+                    prediction_details = f'Based on our analysis, your application shows a low risk profile with {prediction_proba[1]*100:.1f}% confidence. Our credit risk assessment system recommends approval.'
+                elif prediction[0] == 1:
+                    prediction_result = 'Congratulations! Your loan application has been approved'
+                    prediction_details = f'Based on our analysis, your application shows a low risk profile with {confidence:.1f}% confidence. Our credit risk assessment system recommends approval.'
+                else:
+                    prediction_result = 'Application requires further review'
+                    prediction_details = f'Your application needs a closer look. Confidence level: {confidence:.1f}%. We may ask you for more information to help us make a decision.'
                 if DB_CONNECTED:
                     try:
                         cur = mysql.connection.cursor()
                         cur.execute("""
                             INSERT INTO data(
-                                Age, Nuumber_Of_Dependents, Debt_Ratio, Montly_Income, 
-                                RUOUL, 30_59Days, 60_89Days, 90_days, 
-                                Number_of_open_Credit_lines_and_loans, Number_of_real_estate_loans_lines
+                                revolvingutilizationofunsecuredlines, age, numberoftime3059dayspastduenotworse, debtratio, monthlyincome, numberofopencreditlinesandloans, numberoftimes90dayslate, numberrealestateloansorlines, numberoftime6089dayspastduenotworse, numberofdependents
                             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, (
-                            features['age'], features['Dependents'], features['debtratio'],
-                            features['monthlyincome'], features['ruoul'], features['30-59 days'],
-                            features['60-89 days'], features['90days'],
-                            features['NumberOfOpenCreditLinesAndLoans'],
-                            features['NumberRealEstateLoansOrLines']
-                        ))
+                        """, tuple(features))
                         mysql.connection.commit()
                         cur.close()
                     except Exception as db_error:
-                        pass
-                if prediction[0] == 1:
-                    prediction_result = 'Congratulations! Your loan application has been approved'
-                    prediction_details = f'Based on our analysis, your application shows a low risk profile with {confidence:.1f}% confidence. Our credit risk assessment system recommends approval.'
-                else:
-                    prediction_result = 'Application requires further review'
-                    prediction_details = f'Our analysis indicates some risk factors that need attention. Confidence level: {confidence:.1f}%. We recommend reviewing the application with additional documentation.'
+                        print(f"[DEBUG] Database error: {db_error}")
             else:
+                print("[DEBUG] Model not available.")
                 raise ValueError("Model not available. Please contact system administrator.")
             session['prediction_result'] = prediction_result
             session['prediction_details'] = prediction_details
             return redirect(url_for('result'))
         except ValueError as ve:
+            print(f"[DEBUG] ValueError: {ve}")
             return render_template("form.html", error=str(ve))
         except Exception as e:
+            print(f"[DEBUG] Exception: {e}")
             return render_template("form.html", error="An unexpected error occurred. Please try again or contact support if the problem persists.")
     return render_template("form.html")
 
@@ -312,4 +321,4 @@ if __name__ == "__main__":
     print("🚀 Starting Credit Risk Assessment System...")
     print("📍 Access the application at: http://localhost:5000")
     print("📊 Analytics dashboard at: http://localhost:5000/visuals")
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))

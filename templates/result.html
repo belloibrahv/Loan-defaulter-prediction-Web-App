@@ -5,10 +5,43 @@
     <div class="form-header">
       <h2 class="form-title">Assessment Result</h2>
     </div>
-    <div class="alert alert-info mt-4" style="font-size:1.2rem;">
-      <strong>{{ prediction_result }}</strong>
-      <div class="mt-2">{{ prediction_details }}</div>
-    </div>
+    {% if 'approved' in prediction_result.lower() %}
+      <div class="alert alert-success mt-4" style="font-size:1.2rem;">
+        <i class="fas fa-check-circle fa-2x mb-2" style="color: #198754;"></i><br>
+        <strong>{{ prediction_result }}</strong>
+        <div class="mt-2">{{ prediction_details }}</div>
+        <div class="mt-3">
+          <span class="badge bg-success" style="font-size:1rem;">Risk Level: Low</span>
+        </div>
+        <div class="mt-3">
+          <p>Your application has been assessed as <b>low risk</b>. You are likely eligible for a loan. Please proceed to the next steps as instructed by your financial institution.</p>
+        </div>
+      </div>
+    {% elif 'review' in prediction_result.lower() %}
+      <div class="alert alert-warning mt-4" style="font-size:1.2rem;">
+        <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #ffc107;"></i><br>
+        <strong>{{ prediction_result }}</strong>
+        <div class="mt-2">{{ prediction_details }}</div>
+        <div class="mt-3">
+          <span class="badge bg-warning text-dark" style="font-size:1rem;">Risk Level: Medium</span>
+        </div>
+        <div class="mt-3">
+          <p>Your application needs a closer look. Please double-check your details. We may ask you for more information to help us make a decision.</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-danger mt-4" style="font-size:1.2rem;">
+        <i class="fas fa-times-circle fa-2x mb-2" style="color: #dc3545;"></i><br>
+        <strong>{{ prediction_result }}</strong>
+        <div class="mt-2">{{ prediction_details }}</div>
+        <div class="mt-3">
+          <span class="badge bg-danger" style="font-size:1rem;">Risk Level: High</span>
+        </div>
+        <div class="mt-3">
+          <p>Your application has been assessed as <b>high risk</b>. You may not be eligible for a loan at this time. Please review your financial information or contact your financial institution for further advice.</p>
+        </div>
+      </div>
+    {% endif %}
     <a href="{{ url_for('assessment') }}" class="btn btn-primary mt-4">Start New Assessment</a>
   </div>
 </div>
