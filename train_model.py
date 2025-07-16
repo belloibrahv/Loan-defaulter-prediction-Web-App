@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pickle
+import joblib
 import os
 
 from sklearn.model_selection import train_test_split
@@ -176,8 +176,8 @@ print(f"y_test shape: {y_test.shape}")
 
 
 # --- 5. Train the Model ---
-print("\nTraining RandomForestClassifier with class_weight='balanced'...")
-model = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+print("\nTraining RandomForestClassifier with class_weight='balanced' and 50 trees...")
+model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=42)
 model.fit(X_train, y_train)
 print("Model training complete.")
 
@@ -197,13 +197,14 @@ print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 
 
+from joblib import dump
 # --- 7. Save the Trained Model ---
 # Create the directory if it doesn't exist
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-print(f"\nSaving model to: {FULL_MODEL_PATH}")
+print(f"\nSaving model to: {FULL_MODEL_PATH} (with compression)")
 try:
-    pickle.dump(model, open(FULL_MODEL_PATH, 'wb'))
+    dump(model, FULL_MODEL_PATH, compress=3)
     print("Model saved successfully!")
 except Exception as e:
     print(f"Error saving model: {e}")
