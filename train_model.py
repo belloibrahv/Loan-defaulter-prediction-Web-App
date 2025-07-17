@@ -15,6 +15,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 # Add SMOTE for oversampling
 from imblearn.over_sampling import SMOTE
+import xgboost as xgb
 
 
 # --- Configuration ---
@@ -187,11 +188,20 @@ print("Class distribution after SMOTE:")
 print(pd.Series(y_train_res).value_counts())
 
 # --- 5. Train the Model ---
-print("\nTraining RandomForestClassifier with class_weight='balanced' and 50 trees on SMOTE data...")
-model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=42)
+print("\nTraining XGBoostClassifier with SMOTE data and scale_pos_weight...")
+# Calculate scale_pos_weight for XGBoost
+neg, pos = np.bincount(y_train)
+scale_pos_weight = neg / pos
+print(f"scale_pos_weight for XGBoost: {scale_pos_weight:.2f}")
+model = xgb.XGBClassifier(
+    n_estimators=100,
+    scale_pos_weight=scale_pos_weight,
+    use_label_encoder=False,
+    eval_metric='logloss',
+    random_state=42
+)
 model.fit(X_train_res, y_train_res)
 print("Model training complete.")
-
 
 # --- 6. Evaluate the Model (Optional, but Good Practice) ---
 print("\nEvaluating the model on the test set...")
