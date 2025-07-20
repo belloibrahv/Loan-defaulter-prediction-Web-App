@@ -307,19 +307,18 @@ def default_by_gender():
     """API endpoint for gender-based default analysis"""
     try:
         data = load_sample_data()
-        if data is not None and 'seriousdlqin2yrs' in data.columns:
-            # Simulate gender data (since original data doesn't have gender)
-            # We'll use age groups as a proxy for analysis
+        if data is not None and 'SeriousDlqin2yrs' in data.columns:
+            # Use age groups as a proxy for analysis
             data['age_group'] = pd.cut(data['age'], bins=[0, 30, 50, 100], labels=['Young', 'Middle', 'Senior'])
             
             # Calculate defaults by age group
-            defaults_by_group = data.groupby('age_group')['seriousdlqin2yrs'].sum().reset_index()
+            defaults_by_group = data.groupby('age_group')['SeriousDlqin2yrs'].sum().reset_index()
             
             result = []
             for _, row in defaults_by_group.iterrows():
                 result.append({
                     'gender': row['age_group'],  # Using age group as proxy
-                    'total_num_CC_default': int(row['seriousdlqin2yrs'])
+                    'total_num_CC_default': int(row['SeriousDlqin2yrs'])
                 })
             
             return jsonify(result)
@@ -340,12 +339,14 @@ def sept_delays():
     try:
         data = load_sample_data()
         if data is not None:
-            # Simulate payment delay data
+            # Simulate payment delay data based on actual late payment data
             delays = []
             for i in range(1, 8):
+                # Use actual late payment data to generate realistic delays
+                avg_delays = data['NumberOfTime30-59DaysPastDueNotWorse'].mean() if 'NumberOfTime30-59DaysPastDueNotWorse' in data.columns else 0
                 delays.append({
                     'months_delayed_since_Sept': i,
-                    'number_of_accounts': int(np.random.normal(100, 20))
+                    'number_of_accounts': int(max(0, np.random.normal(avg_delays * 50, 20)))
                 })
             return jsonify(delays)
         else:
@@ -363,16 +364,16 @@ def age_balance():
     """API endpoint for age vs credit balance analysis"""
     try:
         data = load_sample_data()
-        if data is not None:
-            # Group by age and calculate average credit
-            age_credit = data.groupby('age')['monthlyincome'].mean().reset_index()
-            age_credit = age_credit.head(10)  # Limit to first 10 age groups
+        if data is not None and 'MonthlyIncome' in data.columns:
+            # Group by age and calculate average income
+            age_income = data.groupby('age')['MonthlyIncome'].mean().reset_index()
+            age_income = age_income.head(10)  # Limit to first 10 age groups
             
             result = []
-            for _, row in age_credit.iterrows():
+            for _, row in age_income.iterrows():
                 result.append({
                     'age': int(row['age']),
-                    'avg_credit_granted': float(row['monthlyincome'])
+                    'avg_credit_granted': float(row['MonthlyIncome'])
                 })
             return jsonify(result)
         else:
@@ -416,27 +417,68 @@ def population_summary():
 def bill_payment():
     """API endpoint for bill vs payment analysis"""
     try:
-        # Simulate monthly bill and payment data
-        months = ['September', 'August', 'July', 'June', 'May', 'April']
-        bill_data = []
-        
-        for month in months:
-            bill_data.append({
-                'a_Sept': float(np.random.normal(5000, 1000)) if month == 'September' else 0,
-                'b_Aug': float(np.random.normal(4800, 1000)) if month == 'August' else 0,
-                'c_July': float(np.random.normal(4600, 1000)) if month == 'July' else 0,
-                'd_June': float(np.random.normal(4400, 1000)) if month == 'June' else 0,
-                'e_May': float(np.random.normal(4200, 1000)) if month == 'May' else 0,
-                'f_April': float(np.random.normal(4000, 1000)) if month == 'April' else 0,
-                'g_Sept': float(np.random.normal(4500, 800)) if month == 'September' else 0,
-                'h_Aug': float(np.random.normal(4300, 800)) if month == 'August' else 0,
-                'i_July': float(np.random.normal(4100, 800)) if month == 'July' else 0,
-                'j_June': float(np.random.normal(3900, 800)) if month == 'June' else 0,
-                'k_May': float(np.random.normal(3700, 800)) if month == 'May' else 0,
-                'l_April': float(np.random.normal(3500, 800)) if month == 'April' else 0
-            })
-        
-        return jsonify(bill_data)
+        data = load_sample_data()
+        if data is not None:
+            # Use actual data to generate realistic bill/payment data
+            avg_income = data['MonthlyIncome'].mean() if 'MonthlyIncome' in data.columns else 5000
+            avg_debt_ratio = data['DebtRatio'].mean() if 'DebtRatio' in data.columns else 0.3
+            
+            # Scale down the numbers to be more reasonable
+            base_bill_amount = min(avg_income * avg_debt_ratio / 1000, 5000)  # Cap at 5000
+            base_payment_amount = base_bill_amount * 0.9  # 90% payment rate
+            
+            # Simulate monthly bill and payment data
+            months = ['September', 'August', 'July', 'June', 'May', 'April']
+            bill_data = []
+            
+            for month in months:
+                bill_amount = base_bill_amount
+                payment_amount = base_payment_amount
+                
+                # Add some variation based on month
+                if month == 'September':
+                    bill_amount *= 1.0
+                    payment_amount *= 0.95
+                elif month == 'August':
+                    bill_amount *= 0.95
+                    payment_amount *= 0.9
+                elif month == 'July':
+                    bill_amount *= 0.9
+                    payment_amount *= 0.85
+                elif month == 'June':
+                    bill_amount *= 0.85
+                    payment_amount *= 0.8
+                elif month == 'May':
+                    bill_amount *= 0.8
+                    payment_amount *= 0.75
+                elif month == 'April':
+                    bill_amount *= 0.75
+                    payment_amount *= 0.7
+                
+                bill_data.append({
+                    'a_Sept': float(bill_amount) if month == 'September' else 0,
+                    'b_Aug': float(bill_amount) if month == 'August' else 0,
+                    'c_July': float(bill_amount) if month == 'July' else 0,
+                    'd_June': float(bill_amount) if month == 'June' else 0,
+                    'e_May': float(bill_amount) if month == 'May' else 0,
+                    'f_April': float(bill_amount) if month == 'April' else 0,
+                    'g_Sept': float(payment_amount) if month == 'September' else 0,
+                    'h_Aug': float(payment_amount) if month == 'August' else 0,
+                    'i_July': float(payment_amount) if month == 'July' else 0,
+                    'j_June': float(payment_amount) if month == 'June' else 0,
+                    'k_May': float(payment_amount) if month == 'May' else 0,
+                    'l_April': float(payment_amount) if month == 'April' else 0
+                })
+            
+            return jsonify(bill_data)
+        else:
+            # Return sample data if real data not available
+            return jsonify([
+                {
+                    'a_Sept': 5000, 'b_Aug': 4800, 'c_July': 4600, 'd_June': 4400, 'e_May': 4200, 'f_April': 4000,
+                    'g_Sept': 4500, 'h_Aug': 4300, 'i_July': 4100, 'j_June': 3900, 'k_May': 3700, 'l_April': 3500
+                }
+            ])
     except Exception as e:
         print(f"Error in bill_payment: {str(e)}")
         return jsonify([])
