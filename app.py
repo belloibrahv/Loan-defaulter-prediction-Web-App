@@ -28,12 +28,51 @@ except Exception as e:
     DB_CONNECTED = False
 
 # Load the saved model
-try:
-    loaded_model = joblib.load('Final_predictive_model/finalized_model.sav')
-    print("✅ Machine learning model loaded successfully")
-except Exception as e:
-    print(f"❌ Error loading model: {str(e)}")
-    loaded_model = None
+def load_model():
+    """Load the machine learning model with fallback mechanisms"""
+    model_paths = [
+        'Final_predictive_model/finalized_model.sav',
+        './Final_predictive_model/finalized_model.sav',
+        '/app/Final_predictive_model/finalized_model.sav'
+    ]
+    
+    for model_path in model_paths:
+        try:
+            if os.path.exists(model_path):
+                model = joblib.load(model_path)
+                print(f"✅ Machine learning model loaded successfully from {model_path}")
+                return model
+            else:
+                print(f"⚠️ Model not found at {model_path}")
+        except Exception as e:
+            print(f"❌ Error loading model from {model_path}: {str(e)}")
+    
+    # If no model found, try to download it
+    try:
+        print("🔄 Attempting to download model file...")
+        import subprocess
+        result = subprocess.run(['bash', 'download_model.sh'], 
+                              capture_output=True, text=True, timeout=60)
+        if result.returncode == 0:
+            print("✅ Model downloaded successfully")
+            # Try loading again
+            for model_path in model_paths:
+                try:
+                    if os.path.exists(model_path):
+                        model = joblib.load(model_path)
+                        print(f"✅ Machine learning model loaded successfully from {model_path}")
+                        return model
+                except Exception as e:
+                    print(f"❌ Error loading downloaded model from {model_path}: {str(e)}")
+        else:
+            print(f"❌ Model download failed: {result.stderr}")
+    except Exception as e:
+        print(f"❌ Error during model download: {str(e)}")
+    
+    print("❌ Could not load model from any location")
+    return None
+
+loaded_model = load_model()
 
 # Load sample data for analytics
 def load_sample_data():

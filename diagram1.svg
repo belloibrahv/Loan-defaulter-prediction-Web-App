@@ -1,0 +1,221 @@
+<svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definitions should be at the top -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c"/>
+    </marker>
+    <marker id="dataflow" markerWidth="8" markerHeight="5" refX="4" refY="2.5" orient="auto">
+      <polygon points="0 0, 8 2.5, 0 5" fill="#e74c3c"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1000" height="600" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2c3e50">
+    Diabetes Risk Assessment System Architecture
+    <tspan x="500" dy="24" font-size="14">(Loan Default Prediction System)</tspan>
+  </text>
+  
+  <!-- Human Skeleton Figure -->
+  <g transform="translate(50, 80)">
+    <!-- Head -->
+    <circle cx="40" cy="40" r="20" fill="none" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- Torso -->
+    <rect x="25" y="60" width="30" height="60" fill="none" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- Arms -->
+    <line x1="25" y1="75" x2="10" y2="100" stroke="#34495e" stroke-width="2"/>
+    <line x1="55" y1="75" x2="70" y2="100" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- Legs -->
+    <line x1="30" y1="120" x2="20" y2="180" stroke="#34495e" stroke-width="2"/>
+    <line x1="50" y1="120" x2="60" y2="180" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- Feet -->
+    <line x1="20" y1="180" x2="15" y2="185" stroke="#34495e" stroke-width="2"/>
+    <line x1="60" y1="180" x2="65" y2="185" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- User Label -->
+    <text x="40" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+      End User
+    </text>
+  </g>
+  
+  <!-- Arrow from User to Frontend -->
+  <path d="M 150 150 Q 200 150 250 150" fill="none" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Frontend Layer -->
+  <g transform="translate(250, 100)">
+    <rect width="200" height="120" fill="#3498db" stroke="#2980b9" stroke-width="2" rx="10"/>
+    <text x="100" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">
+      Frontend Layer
+    </text>
+    
+    <!-- Frontend Components -->
+    <rect x="20" y="30" width="160" height="20" fill="#2980b9" rx="5"/>
+    <text x="100" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      HTML5, CSS3, JavaScript
+    </text>
+    
+    <rect x="20" y="55" width="160" height="20" fill="#2980b9" rx="5"/>
+    <text x="100" y="69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Bootstrap Framework
+    </text>
+    
+    <rect x="20" y="80" width="160" height="20" fill="#2980b9" rx="5"/>
+    <text x="100" y="94" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Chart.js (Data Visualization)
+    </text>
+  </g>
+  
+  <!-- Arrow from Frontend to Backend -->
+  <path d="M 450 160 Q 500 160 550 160" fill="none" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Backend Layer -->
+  <g transform="translate(550, 80)">
+    <rect width="250" height="160" fill="#2ecc71" stroke="#27ae60" stroke-width="2" rx="10"/>
+    <text x="125" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">
+      Backend Layer
+    </text>
+    
+    <!-- Backend Components -->
+    <rect x="20" y="30" width="210" height="20" fill="#27ae60" rx="5"/>
+    <text x="125" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Python 3.9+ & Flask Web Framework
+    </text>
+    
+    <rect x="20" y="55" width="210" height="30" fill="#f39c12" stroke="#d68910" stroke-width="1" rx="5"/>
+    <text x="125" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">
+      Rule-Based Prediction Engine
+    </text>
+    <text x="125" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">
+      (Core Logic)
+    </text>
+    
+    <rect x="20" y="90" width="210" height="20" fill="#27ae60" rx="5"/>
+    <text x="125" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Pandas & NumPy (Data Processing)
+    </text>
+    
+    <rect x="20" y="115" width="210" height="20" fill="#27ae60" rx="5"/>
+    <text x="125" y="129" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Clinical Rules & Thresholds
+    </text>
+  </g>
+  
+  <!-- Arrow from Backend to Data Tier -->
+  <path d="M 675 240 Q 675 290 675 340" fill="none" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Data Tier -->
+  <g transform="translate(550, 340)">
+    <rect width="250" height="120" fill="#9b59b6" stroke="#8e44ad" stroke-width="2" rx="10"/>
+    <text x="125" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">
+      Data Tier
+    </text>
+    
+    <!-- Data Components -->
+    <rect x="20" y="30" width="210" height="20" fill="#8e44ad" rx="5"/>
+    <text x="125" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Rules/Thresholds Configuration
+    </text>
+    
+    <rect x="20" y="55" width="210" height="20" fill="#8e44ad" rx="5"/>
+    <text x="125" y="69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Static Content/Resources
+    </text>
+    
+    <rect x="20" y="80" width="210" height="20" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1" rx="5"/>
+    <text x="125" y="94" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">
+      Database (Future Implementation)
+    </text>
+  </g>
+  
+  <!-- System Functions Box -->
+  <g transform="translate(50, 350)">
+    <rect width="400" height="350" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2" rx="10"/>
+    <text x="200" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">
+      Key System Functions
+    </text>
+    
+    <!-- Function Steps -->
+    <g transform="translate(20, 40)">
+      <rect x="0" y="0" width="360" height="25" fill="#3498db" rx="5"/>
+      <text x="180" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 1: User Registration/Authentication (Optional)
+      </text>
+      
+      <rect x="0" y="35" width="360" height="25" fill="#2ecc71" rx="5"/>
+      <text x="180" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 2: Comprehensive Data Input
+      </text>
+      
+      <rect x="0" y="70" width="360" height="25" fill="#e74c3c" rx="5"/>
+      <text x="180" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 3: Rule-Based Diabetes Prediction
+      </text>
+      
+      <rect x="0" y="105" width="360" height="25" fill="#f39c12" rx="5"/>
+      <text x="180" y="122" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 4: Comprehensive Results Display
+      </text>
+      
+      <rect x="0" y="140" width="360" height="25" fill="#9b59b6" rx="5"/>
+      <text x="180" y="157" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 5: Evidence-Based Treatment Recommendations
+      </text>
+      
+      <rect x="0" y="175" width="360" height="25" fill="#1abc9c" rx="5"/>
+      <text x="180" y="192" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 6: Educational Content
+      </text>
+      
+      <rect x="0" y="210" width="360" height="25" fill="#34495e" rx="5"/>
+      <text x="180" y="227" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white">
+        Step 7: Data Export and Sharing
+      </text>
+    </g>
+    
+    <!-- Rule-Based Logic Detail -->
+    <g transform="translate(20, 280)">
+      <text x="0" y="15" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+        Rule-Based Logic Components:
+      </text>
+      <text x="0" y="35" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+        A. Risk Classification (Clinical Thresholds)
+      </text>
+      <text x="0" y="50" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+        B. Diabetes Type Classification (Decision Rules)
+      </text>
+      <text x="0" y="65" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+        C. Risk Stratification (Low, Moderate, High)
+      </text>
+    </g>
+  </g>
+  
+  <!-- Arrows showing data flow -->
+  <path d="M 350 350 Q 400 350 450 350" fill="none" stroke="#e74c3c" stroke-width="1" stroke-dasharray="5,5" marker-end="url(#dataflow)"/>
+  <text x="400" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#e74c3c">
+    Continuous Data Flow
+  </text>
+  
+  <!-- Legend -->
+  <g transform="translate(50, 720)">
+    <text x="0" y="15" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+      Legend:
+    </text>
+    <rect x="60" y="5" width="15" height="15" fill="#3498db"/>
+    <text x="80" y="17" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">Frontend</text>
+    
+    <rect x="140" y="5" width="15" height="15" fill="#2ecc71"/>
+    <text x="160" y="17" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">Backend</text>
+    
+    <rect x="220" y="5" width="15" height="15" fill="#9b59b6"/>
+    <text x="240" y="17" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">Data Tier</text>
+    
+    <rect x="300" y="5" width="15" height="15" fill="#f39c12"/>
+    <text x="320" y="17" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">Core Logic</text>
+  </g>
+</svg>

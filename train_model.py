@@ -196,7 +196,6 @@ print(f"scale_pos_weight for XGBoost: {scale_pos_weight:.2f}")
 model = xgb.XGBClassifier(
     n_estimators=100,
     scale_pos_weight=scale_pos_weight,
-    use_label_encoder=False,
     eval_metric='logloss',
     random_state=42
 )
