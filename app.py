@@ -27,6 +27,7 @@ except Exception as e:
     print(f"⚠️ Database connection not configured: {str(e)}")
     DB_CONNECTED = False
 
+# Load the saved model
 def load_model():
     """Load the machine learning model with fallback mechanisms"""
     model_paths = [
@@ -51,7 +52,7 @@ def load_model():
         print("🔄 Attempting to download model file...")
         import subprocess
         result = subprocess.run(['bash', 'download_model.sh'], 
-                              capture_output=True, text=True, timeout=60)
+                              capture_output=True, text=True, timeout=120)  # Increased timeout
         if result.returncode == 0:
             print("✅ Model downloaded successfully")
             # Try loading again
@@ -71,7 +72,15 @@ def load_model():
     print("❌ Could not load model from any location")
     return None
 
-loaded_model = load_model()
+# Global model variable
+loaded_model = None
+
+def get_model():
+    """Get the loaded model with lazy loading"""
+    global loaded_model
+    if loaded_model is None:
+        loaded_model = load_model()
+    return loaded_model
 
 # Load sample data for analytics
 def load_sample_data():
@@ -126,73 +135,102 @@ def assessment():
                     if value < 0:
                         raise ValueError(f"{field.replace('_', ' ').title()} cannot be negative.")
                 features.append(value)
+            
             # Debug print: show feature names and values
             print("[DEBUG] Features for prediction:")
             for fname, fval in zip(feature_names, features):
                 print(f"    {fname}: {fval}")
+            
             feature_array = np.array([features])
             print(f"[DEBUG] Feature array for prediction: {feature_array}")
-            if loaded_model is not None:
-                prediction = loaded_model.predict(feature_array)
+            
+            # Get model with timeout handling
+            model = get_model()
+            if model is not None:
                 try:
-                    prediction_proba = loaded_model.predict_proba(feature_array)[0]
-                    print(f"[DEBUG] Prediction probabilities: {prediction_proba}")
-                    approval_proba = float(prediction_proba[1])
-                except Exception as e:
-                    print(f"[DEBUG] Could not get prediction probabilities: {e}")
-                    approval_proba = 0.5
-                # Risk logic
-                if approval_proba >= 0.7:
-                    risk_level = 'Low'
-                    decision = 'Approved'
-                    summary = 'Congratulations! You are eligible for a loan.'
-                    explanation = 'Your application shows a low risk of default based on our analysis.'
-                    next_steps = 'You may proceed with your loan application. Please follow your financial institution’s instructions.'
-                    color = 'success'
-                    icon = 'fa-check-circle'
-                elif approval_proba >= 0.4:
-                    risk_level = 'Medium'
-                    decision = 'Needs Review'
-                    summary = 'Your application requires further review.'
-                    explanation = 'Your application shows some risk factors. We recommend a closer review.'
-                    next_steps = 'Please double-check your information. Additional documentation may be requested.'
-                    color = 'warning'
-                    icon = 'fa-exclamation-triangle'
-                else:
-                    risk_level = 'High'
-                    decision = 'Not Eligible'
-                    summary = 'We are unable to approve your loan at this time.'
-                    explanation = 'Your application shows a high risk of default based on our analysis.'
-                    next_steps = 'Consider improving your credit profile or contacting your financial institution for advice.'
-                    color = 'danger'
-                    icon = 'fa-times-circle'
-                result_summary = {
-                    'decision': decision,
-                    'probability': f"{approval_proba*100:.1f}%",
-                    'risk_level': risk_level,
-                    'summary': summary,
-                    'explanation': explanation,
-                    'next_steps': next_steps,
-                    'color': color,
-                    'icon': icon
-                }
-                if DB_CONNECTED:
+                    # Add timeout for prediction
+                    import signal
+                    
+                    def timeout_handler(signum, frame):
+                        raise TimeoutError("Prediction timed out")
+                    
+                    # Set timeout for prediction (30 seconds)
+                    signal.signal(signal.SIGALRM, timeout_handler)
+                    signal.alarm(30)
+                    
                     try:
-                        cur = mysql.connection.cursor()
-                        cur.execute("""
-                            INSERT INTO data(
-                                revolvingutilizationofunsecuredlines, age, numberoftime3059dayspastduenotworse, debtratio, monthlyincome, numberofopencreditlinesandloans, numberoftimes90dayslate, numberrealestateloansorlines, numberoftime6089dayspastduenotworse, numberofdependents
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """, tuple(features))
-                        mysql.connection.commit()
-                        cur.close()
-                    except Exception as db_error:
-                        print(f"[DEBUG] Database error: {db_error}")
+                        prediction = model.predict(feature_array)
+                        prediction_proba = model.predict_proba(feature_array)[0]
+                        signal.alarm(0)  # Cancel timeout
+                        
+                        print(f"[DEBUG] Prediction probabilities: {prediction_proba}")
+                        approval_proba = float(prediction_proba[1])
+                        
+                        # Risk logic
+                        if approval_proba >= 0.7:
+                            risk_level = 'Low'
+                            decision = 'Approved'
+                            summary = 'Congratulations! You are eligible for a loan.'
+                            explanation = 'Your application shows a low risk of default based on our analysis.'
+                            next_steps = 'You may proceed with your loan application. Please follow your financial institution\'s instructions.'
+                            color = 'success'
+                            icon = 'fa-check-circle'
+                        elif approval_proba >= 0.4:
+                            risk_level = 'Medium'
+                            decision = 'Needs Review'
+                            summary = 'Your application requires further review.'
+                            explanation = 'Your application shows some risk factors. We recommend a closer review.'
+                            next_steps = 'Please double-check your information. Additional documentation may be requested.'
+                            color = 'warning'
+                            icon = 'fa-exclamation-triangle'
+                        else:
+                            risk_level = 'High'
+                            decision = 'Not Eligible'
+                            summary = 'We are unable to approve your loan at this time.'
+                            explanation = 'Your application shows a high risk of default based on our analysis.'
+                            next_steps = 'Consider improving your credit profile or contacting your financial institution for advice.'
+                            color = 'danger'
+                            icon = 'fa-times-circle'
+                        
+                        result_summary = {
+                            'decision': decision,
+                            'probability': f"{approval_proba*100:.1f}%",
+                            'risk_level': risk_level,
+                            'summary': summary,
+                            'explanation': explanation,
+                            'next_steps': next_steps,
+                            'color': color,
+                            'icon': icon
+                        }
+                        
+                        if DB_CONNECTED:
+                            try:
+                                cur = mysql.connection.cursor()
+                                cur.execute("""
+                                    INSERT INTO data(
+                                        revolvingutilizationofunsecuredlines, age, numberoftime3059dayspastduenotworse, debtratio, monthlyincome, numberofopencreditlinesandloans, numberoftimes90dayslate, numberrealestateloansorlines, numberoftime6089dayspastduenotworse, numberofdependents
+                                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                """, tuple(features))
+                                mysql.connection.commit()
+                                cur.close()
+                            except Exception as db_error:
+                                print(f"[DEBUG] Database error: {db_error}")
+                        
+                        session['result_summary'] = result_summary
+                        return redirect(url_for('result'))
+                        
+                    except TimeoutError:
+                        signal.alarm(0)  # Cancel timeout
+                        print("[DEBUG] Prediction timed out")
+                        return render_template("form.html", error="Prediction timed out. Please try again.")
+                        
+                except Exception as pred_error:
+                    print(f"[DEBUG] Prediction error: {pred_error}")
+                    return render_template("form.html", error="Error processing prediction. Please try again.")
             else:
                 print("[DEBUG] Model not available.")
                 raise ValueError("Model not available. Please contact system administrator.")
-            session['result_summary'] = result_summary
-            return redirect(url_for('result'))
+                
         except ValueError as ve:
             print(f"[DEBUG] ValueError: {ve}")
             return render_template("form.html", error=str(ve))
@@ -357,15 +395,15 @@ def bill_payment():
 def test_model():
     """Test endpoint to verify model is working"""
     try:
-        if loaded_model is None:
+        if get_model() is None:
             return jsonify({'error': 'Model not loaded'})
         
         # Test with sample data
         test_features = np.array([[35, 2, 0.3, 50000, 0.25, 0, 0, 0, 3, 1]])
-        prediction = loaded_model.predict(test_features)
+        prediction = get_model().predict(test_features)
         
         try:
-            prediction_proba = loaded_model.predict_proba(test_features)[0]
+            prediction_proba = get_model().predict_proba(test_features)[0]
             confidence = max(prediction_proba) * 100
         except:
             confidence = 85

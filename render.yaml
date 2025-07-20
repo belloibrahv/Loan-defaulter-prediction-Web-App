@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: loan-defaulter-prediction-web-app
+    env: python
+    buildCommand: bash deploy_setup.sh
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --max-requests 1000 --max-requests-jitter 100
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+      - key: PORT
+        value: 10000
+    healthCheckPath: /test_model
+    autoDeploy: true 
