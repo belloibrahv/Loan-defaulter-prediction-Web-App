@@ -166,29 +166,96 @@ def assessment():
                         print(f"[DEBUG] Prediction probabilities: {prediction_proba}")
                         approval_proba = float(prediction_proba[1])
                         
-                        # Risk logic
+                        # Risk logic with enhanced messaging
                         if approval_proba >= 0.7:
                             risk_level = 'Low'
                             decision = 'Approved'
+                            
+                            # Enhanced explanation for approval
+                            positive_factors = []
+                            
+                            if features[0] <= 0.3:  # Low revolving utilization
+                                positive_factors.append("excellent credit utilization")
+                            if features[2] == 0:  # No late payments
+                                positive_factors.append("clean payment history")
+                            if features[6] == 0:  # No serious late payments
+                                positive_factors.append("no serious payment delays")
+                            if features[4] >= 70000:  # Good income
+                                positive_factors.append("strong income level")
+                            if features[5] <= 5:  # Reasonable credit lines
+                                positive_factors.append("manageable credit accounts")
+                            if features[3] <= 0.4:  # Good debt ratio
+                                positive_factors.append("healthy debt-to-income ratio")
+                            
+                            # Create personalized explanation
+                            if positive_factors:
+                                explanation = f"Your application shows excellent financial health with: {', '.join(positive_factors)}. This demonstrates strong creditworthiness."
+                            else:
+                                explanation = "Your application shows a low risk of default based on our analysis. Your financial profile is strong."
+                            
                             summary = 'Congratulations! You are eligible for a loan.'
-                            explanation = 'Your application shows a low risk of default based on our analysis.'
-                            next_steps = 'You may proceed with your loan application. Please follow your financial institution\'s instructions.'
+                            next_steps = 'You may proceed with your loan application. Please follow your financial institution\'s instructions and maintain your good financial habits.'
                             color = 'success'
                             icon = 'fa-check-circle'
                         elif approval_proba >= 0.4:
                             risk_level = 'Medium'
                             decision = 'Needs Review'
+                            
+                            # Enhanced explanation based on user data
+                            explanation_parts = []
+                            
+                            # Check specific risk factors
+                            if features[0] > 0.7:  # High revolving utilization
+                                explanation_parts.append("Your credit utilization is quite high")
+                            if features[2] > 0:  # Late payments 30-59 days
+                                explanation_parts.append("You have some recent late payments")
+                            if features[6] > 0:  # Late payments 90+ days
+                                explanation_parts.append("You have serious payment delays")
+                            if features[4] < 50000:  # Low income
+                                explanation_parts.append("Your income level is below average")
+                            if features[5] > 8:  # Too many open credit lines
+                                explanation_parts.append("You have many open credit accounts")
+                            if features[3] > 0.6:  # High debt ratio
+                                explanation_parts.append("Your debt-to-income ratio is elevated")
+                            
+                            # Create personalized explanation
+                            if explanation_parts:
+                                explanation = f"Your application requires review due to: {', '.join(explanation_parts)}. These factors suggest some financial risk that needs closer examination."
+                            else:
+                                explanation = "Your application shows some risk factors that require closer review. This is common and doesn't necessarily mean rejection."
+                            
                             summary = 'Your application requires further review.'
-                            explanation = 'Your application shows some risk factors. We recommend a closer review.'
-                            next_steps = 'Please double-check your information. Additional documentation may be requested.'
+                            next_steps = 'Please double-check your information and consider providing additional documentation. You may also want to improve your credit score or reduce existing debt before reapplying.'
                             color = 'warning'
                             icon = 'fa-exclamation-triangle'
                         else:
                             risk_level = 'High'
                             decision = 'Not Eligible'
+                            
+                            # Enhanced explanation for high risk
+                            explanation_parts = []
+                            
+                            if features[0] > 0.8:  # Very high revolving utilization
+                                explanation_parts.append("Your credit utilization is extremely high")
+                            if features[2] > 1:  # Multiple late payments
+                                explanation_parts.append("You have multiple recent late payments")
+                            if features[6] > 1:  # Multiple serious late payments
+                                explanation_parts.append("You have multiple serious payment delays")
+                            if features[4] < 30000:  # Very low income
+                                explanation_parts.append("Your income level is significantly below average")
+                            if features[5] > 10:  # Too many credit lines
+                                explanation_parts.append("You have too many open credit accounts")
+                            if features[3] > 0.8:  # Very high debt ratio
+                                explanation_parts.append("Your debt-to-income ratio is very high")
+                            
+                            # Create personalized explanation
+                            if explanation_parts:
+                                explanation = f"Your application shows high risk due to: {', '.join(explanation_parts)}. These factors indicate a high probability of default."
+                            else:
+                                explanation = "Your application shows a high risk of default based on our analysis. Multiple risk factors are present."
+                            
                             summary = 'We are unable to approve your loan at this time.'
-                            explanation = 'Your application shows a high risk of default based on our analysis.'
-                            next_steps = 'Consider improving your credit profile or contacting your financial institution for advice.'
+                            next_steps = 'Consider improving your credit profile by: paying down existing debt, making payments on time, reducing credit utilization, or increasing your income. You may reapply after 6-12 months of improved financial behavior.'
                             color = 'danger'
                             icon = 'fa-times-circle'
                         
