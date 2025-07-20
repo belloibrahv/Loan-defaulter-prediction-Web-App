@@ -27,7 +27,6 @@ except Exception as e:
     print(f"⚠️ Database connection not configured: {str(e)}")
     DB_CONNECTED = False
 
-# Load the saved model
 def load_model():
     """Load the machine learning model with fallback mechanisms"""
     model_paths = [
